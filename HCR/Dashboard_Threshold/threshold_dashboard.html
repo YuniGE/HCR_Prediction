@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESI Threshold Analytics</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Professional Color Palette - Inspired by Coolors.co */
+        :root {
+            /* Base Colors */
+            --bg-primary: #FAFBFC;
+            --bg-secondary: #F1F4F8;
+            --bg-card: #FFFFFF;
+            
+            /* Text Colors */
+            --text-primary: #1A1D21;
+            --text-secondary: #5E6C84;
+            --text-muted: #8993A4;
+            
+            /* Accent Colors - Professional Palette */
+            --accent-primary: #4F46E5;      /* Indigo */
+            --accent-secondary: #0EA5E9;    /* Sky Blue */
+            --accent-success: #10B981;      /* Emerald */
+            --accent-warning: #F59E0B;      /* Amber */
+            --accent-danger: #EF4444;       /* Red */
+            
+            /* Chart Colors - Harmonious Palette */
+            --chart-1: #4F46E5;  /* Indigo */
+            --chart-2: #0EA5E9;  /* Sky */
+            --chart-3: #10B981;  /* Emerald */
+            --chart-4: #F59E0B;  /* Amber */
+            --chart-5: #EC4899;  /* Pink */
+            --chart-6: #8B5CF6;  /* Violet */
+            --chart-7: #06B6D4;  /* Cyan */
+            --chart-8: #F97316;  /* Orange */
+            
+            /* Borders & Shadows */
+            --border-light: #E5E9F0;
+            --border-medium: #D1D9E6;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04);
+            
+            /* Radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+            padding: 72px 24px 56px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%);
+            color: var(--accent-primary);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 100px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 5vw, 52px);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 560px;
+            margin: 0 auto 36px;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 16px 24px;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+        }
+
+        /* Controls Section */
+        .controls-section {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            padding: 28px 32px;
+            margin: 32px 0;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+        }
+
+        .controls-group {
+            margin-bottom: 24px;
+        }
+
+        .controls-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .controls-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .controls-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: linear-gradient(180deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            border-radius: 2px;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .control {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        select {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 10px 36px 10px 14px;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            background: var(--bg-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%235E6C84' d='M5 7L1 3h8z'/%3E%3C/svg%3E") no-repeat right 12px center;
+            appearance: none;
+            cursor: pointer;
+            min-width: 200px;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        select:hover {
+            border-color: var(--accent-primary);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        /* Sections */
+        .section {
+            margin-top: 56px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .section-header h2 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .section-header p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Card Grid */
+        .card-grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (max-width: 900px) {
+            .card-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+            border-color: var(--border-medium);
+        }
+
+        .card-full {
+            grid-column: 1 / -1;
+        }
+
+        .card-header {
+            margin-bottom: 18px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Charts */
+        .chart {
+            width: 100%;
+            height: 360px;
+        }
+
+        .chart-lg {
+            height: 480px;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.04) 0%, rgba(14, 165, 233, 0.04) 100%);
+            border-left: 3px solid var(--accent-primary);
+            padding: 12px 16px;
+            margin-top: 14px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+
+        .info-box p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 24px;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-light);
+            margin-top: 64px;
+        }
+
+        .footer p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .footer p:first-child {
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-badge">
+            <span>📊</span> Research Analytics Platform
+        </div>
+        <h1>ESI <span>Threshold</span> Intelligence</h1>
+        <p>Advanced analysis and prediction of highly cited paper thresholds across 22 research fields.</p>
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="statFields">22</div>
+                <div class="stat-label">Research Fields</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="statYears">19</div>
+                <div class="stat-label">Publication Years</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">49</div>
+                <div class="stat-label">ESI Releases</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">98%</div>
+                <div class="stat-label">Model Accuracy</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls-section">
+            <div class="controls-group">
+                <div class="controls-title">Single Field Analysis</div>
+                <div class="controls-row">
+                    <div class="control">
+                        <label>Research Field</label>
+                        <select id="selField"></select>
+                    </div>
+                    <div class="control">
+                        <label>Publication Year</label>
+                        <select id="selYear"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="controls-group">
+                <div class="controls-title">Multi-Field Comparison</div>
+                <div class="controls-row">
+                    <div class="control">
+                        <label>Field 1</label>
+                        <select id="cmpField1"></select>
+                    </div>
+                    <div class="control">
+                        <label>Field 2</label>
+                        <select id="cmpField2"></select>
+                    </div>
+                    <div class="control">
+                        <label>Field 3</label>
+                        <select id="cmpField3"></select>
+                    </div>
+                    <div class="control">
+                        <label>Field 4</label>
+                        <select id="cmpField4"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Threshold Evolution -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Threshold Evolution</h2>
+                <p>Track how citation thresholds change over time for different publication years.</p>
+            </div>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Time Series Analysis</h3>
+                        <p class="card-subtitle">Threshold changes for selected field and publication year</p>
+                    </div>
+                    <div class="chart" id="chart1"></div>
+                    <div class="info-box">
+                        <p>📈 Shows how the threshold grows as papers accumulate more citations over successive ESI releases.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Multi-Year Comparison</h3>
+                        <p class="card-subtitle">Compare threshold evolution across publication years</p>
+                    </div>
+                    <div class="chart" id="chart2"></div>
+                    <div class="info-box">
+                        <p>📈 Compares thresholds for papers published in 2016, 2018, 2020, and 2022. Older papers have higher thresholds.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Paper Age Analysis -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Paper Age Analysis</h2>
+                <p>Understand how citation thresholds grow as papers accumulate more citations over time.</p>
+            </div>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Age-Threshold Relationship</h3>
+                        <p class="card-subtitle">Average threshold by paper age for selected field</p>
+                    </div>
+                    <div class="chart" id="chart3"></div>
+                    <div class="info-box">
+                        <p>📊 Paper Age = Release Year − Publication Year. Older papers have more time to accumulate citations.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Growth Patterns by Field</h3>
+                        <p class="card-subtitle">Use the multi-field selectors above to compare</p>
+                    </div>
+                    <div class="chart" id="chart4"></div>
+                    <div class="info-box">
+                        <p>📊 Different fields have different citation cultures. Some fields have much higher thresholds than others.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Field Comparison -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Field Comparison</h2>
+                <p>Compare threshold requirements across all 22 research disciplines.</p>
+            </div>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Average Threshold by Field</h3>
+                        <p class="card-subtitle">Overall citation intensity comparison</p>
+                    </div>
+                    <div class="chart" id="chart5"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Current Thresholds</h3>
+                        <p class="card-subtitle">Latest thresholds for selected publication year</p>
+                    </div>
+                    <div class="chart" id="chart6"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Complete Overview -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Complete Overview</h2>
+                <p>Comprehensive view of thresholds across all fields and publication years.</p>
+            </div>
+            <div class="card card-full">
+                <div class="card-header">
+                    <h3 class="card-title">Threshold Heatmap</h3>
+                    <p class="card-subtitle">Field × Publication Year matrix with latest threshold values</p>
+                </div>
+                <div class="chart chart-lg" id="chart7"></div>
+                <div class="info-box">
+                    <p>🗺️ Darker colors indicate higher thresholds. Older publication years (left) and high-citation fields have higher thresholds.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Predictions -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Future Predictions</h2>
+                <p>Machine learning predictions for upcoming ESI releases (January 2026).</p>
+            </div>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Predicted vs Current</h3>
+                        <p class="card-subtitle">January 2026 forecast compared to latest actual</p>
+                    </div>
+                    <div class="chart" id="chart8"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">All Fields Forecast</h3>
+                        <p class="card-subtitle">Predicted thresholds by field for selected year</p>
+                    </div>
+                    <div class="chart" id="chart9"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>ESI Threshold Analytics Dashboard</p>
+        <p>Data source: Clarivate InCites Essential Science Indicators</p>
+    </footer>
+
+<script>
+let D = null;
+
+// Professional Chart Color Palette
+const chartColors = [
+    '#4F46E5',  // Indigo
+    '#0EA5E9',  // Sky
+    '#10B981',  // Emerald
+    '#F59E0B',  // Amber
+    '#EC4899',  // Pink
+    '#8B5CF6',  // Violet
+    '#06B6D4',  // Cyan
+    '#F97316'   // Orange
+];
+
+// Heatmap color scale - Indigo gradient
+const heatmapColorscale = [
+    [0, '#F1F4F8'],
+    [0.2, '#C7D2FE'],
+    [0.4, '#A5B4FC'],
+    [0.6, '#818CF8'],
+    [0.8, '#6366F1'],
+    [1, '#4F46E5']
+];
+
+const baseLayout = {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { family: 'Plus Jakarta Sans, system-ui, sans-serif', color: '#1A1D21', size: 12 },
+    margin: { t: 10, r: 20, b: 50, l: 60 },
+    xaxis: { 
+        gridcolor: '#E5E9F0', 
+        zeroline: false, 
+        tickfont: { size: 11, color: '#5E6C84' },
+        linecolor: '#E5E9F0'
+    },
+    yaxis: { 
+        gridcolor: '#E5E9F0', 
+        zeroline: false, 
+        tickfont: { size: 11, color: '#5E6C84' },
+        linecolor: '#E5E9F0'
+    }
+};
+
+const config = { responsive: true, displayModeBar: false };
+
+async function init() {
+    try {
+        const r = await fetch('dashboard_data.json');
+        D = await r.json();
+        
+        const fields = D.metadata.fields;
+        const years = Object.keys(D.time_series[fields[0]]).sort((a,b) => parseInt(b) - parseInt(a));
+        
+        document.getElementById('statFields').textContent = fields.length;
+        document.getElementById('statYears').textContent = years.length;
+        
+        populateSelect('selField', fields, 'CLINICAL MEDICINE');
+        populateSelect('selYear', years, '2020');
+        populateSelect('cmpField1', fields, 'CLINICAL MEDICINE');
+        populateSelect('cmpField2', fields, 'COMPUTER SCIENCE');
+        populateSelect('cmpField3', fields, 'PHYSICS');
+        populateSelect('cmpField4', fields, 'MATHEMATICS');
+        
+        document.getElementById('selField').onchange = updateSingle;
+        document.getElementById('selYear').onchange = updateSingle;
+        document.getElementById('cmpField1').onchange = updateCompare;
+        document.getElementById('cmpField2').onchange = updateCompare;
+        document.getElementById('cmpField3').onchange = updateCompare;
+        document.getElementById('cmpField4').onchange = updateCompare;
+        
+        updateSingle();
+        updateCompare();
+        drawAllFieldsCharts();
+    } catch(e) {
+        console.error('Error:', e);
+    }
+}
+
+function populateSelect(id, options, defaultVal) {
+    const sel = document.getElementById(id);
+    sel.innerHTML = options.map(o => `<option value="${o}" ${o === defaultVal ? 'selected' : ''}>${o}</option>`).join('');
+}
+
+function updateSingle() {
+    const field = document.getElementById('selField').value;
+    const year = document.getElementById('selYear').value;
+    drawTimeSeries(field, year);
+    drawMultiYear(field);
+    drawAgeChart(field);
+    drawPredVsCurrent(field);
+    drawCurrentThresholds(year);
+    drawAllFieldsForecast(year);
+}
+
+function updateCompare() {
+    const fields = [
+        document.getElementById('cmpField1').value,
+        document.getElementById('cmpField2').value,
+        document.getElementById('cmpField3').value,
+        document.getElementById('cmpField4').value
+    ];
+    drawGrowthComparison(fields);
+}
+
+function drawAllFieldsCharts() {
+    drawFieldAverage();
+    drawHeatmap();
+}
+
+function drawTimeSeries(field, year) {
+    const fd = D.time_series[field];
+    const yd = fd ? fd[year] : null;
+    if (!yd || !yd.dates) return;
+    
+    Plotly.newPlot('chart1', [{
+        x: yd.dates, y: yd.thresholds,
+        type: 'scatter', mode: 'lines+markers',
+        line: { color: chartColors[0], width: 2.5, shape: 'spline' },
+        marker: { size: 6, color: chartColors[0] },
+        fill: 'tozeroy', fillcolor: 'rgba(79, 70, 229, 0.08)'
+    }], {
+        ...baseLayout,
+        xaxis: { ...baseLayout.xaxis, title: { text: 'ESI Release Date', font: { size: 12, color: '#5E6C84' } }, type: 'date' },
+        yaxis: { ...baseLayout.yaxis, title: { text: 'Threshold', font: { size: 12, color: '#5E6C84' } } }
+    }, config);
+}
+
+function drawMultiYear(field) {
+    const fd = D.time_series[field];
+    if (!fd) return;
+    const traces = [];
+    ['2016','2018','2020','2022'].forEach((y, i) => {
+        if (fd[y] && fd[y].dates) {
+            traces.push({ 
+                x: fd[y].dates, y: fd[y].thresholds, 
+                type: 'scatter', mode: 'lines', 
+                name: 'Pub ' + y, 
+                line: { color: chartColors[i], width: 2.5, shape: 'spline' } 
+            });
+        }
+    });
+    Plotly.newPlot('chart2', traces, {
+        ...baseLayout,
+        xaxis: { ...baseLayout.xaxis, title: { text: 'ESI Release Date', font: { size: 12, color: '#5E6C84' } }, type: 'date' },
+        yaxis: { ...baseLayout.yaxis, title: { text: 'Threshold', font: { size: 12, color: '#5E6C84' } } },
+        showlegend: true, legend: { orientation: 'h', y: -0.18, font: { size: 11 } }
+    }, config);
+}
+
+function drawAgeChart(field) {
+    const d = D.age_analysis[field];
+    if (!d || !d.ages) return;
+    Plotly.newPlot('chart3', [{
+        x: d.ages, y: d.thresholds,
+        type: 'scatter', mode: 'lines+markers',
+        line: { color: chartColors[1], width: 3, shape: 'spline' },
+        marker: { size: 8, color: chartColors[1] },
+        fill: 'tozeroy', fillcolor: 'rgba(14, 165, 233, 0.08)'
+    }], {
+        ...baseLayout,
+        xaxis: { ...baseLayout.xaxis, title: { text: 'Paper Age (years)', font: { size: 12, color: '#5E6C84' } }, type: 'linear' },
+        yaxis: { ...baseLayout.yaxis, title: { text: 'Average Threshold', font: { size: 12, color: '#5E6C84' } } }
+    }, config);
+}
+
+function drawGrowthComparison(fields) {
+    const traces = [];
+    fields.forEach((f, i) => {
+        const d = D.growth[f];
+        if (d && d.ages) {
+            traces.push({ 
+                x: d.ages, y: d.thresholds, 
+                type: 'scatter', mode: 'lines', 
+                name: f.substring(0, 15), 
+                line: { color: chartColors[i], width: 2.5, shape: 'spline' } 
+            });
+        }
+    });
+    Plotly.newPlot('chart4', traces, {
+        ...baseLayout,
+        xaxis: { ...baseLayout.xaxis, title: { text: 'Paper Age (years)', font: { size: 12, color: '#5E6C84' } }, type: 'linear' },
+        yaxis: { ...baseLayout.yaxis, title: { text: 'Average Threshold', font: { size: 12, color: '#5E6C84' } } },
+        showlegend: true, legend: { font: { size: 10 }, x: 0.02, y: 0.98 }
+    }, config);
+}
+
+function drawFieldAverage() {
+    const d = D.field_avg;
+    if (!d || !d.fields) return;
+    const items = d.fields.map((f, i) => ({ field: f, avg: d.averages[i] })).sort((a, b) => a.avg - b.avg);
+    const maxVal = Math.max(...d.averages);
+    
+    Plotly.newPlot('chart5', [{
+        y: items.map(i => i.field), x: items.map(i => i.avg),
+        type: 'bar', orientation: 'h',
+        marker: { 
+            color: items.map(i => {
+                const ratio = i.avg / maxVal;
+                return `rgba(79, 70, 229, ${0.3 + ratio * 0.7})`;
+            }),
+            line: { width: 0 }
+        }
+    }], {
+        ...baseLayout,
+        margin: { ...baseLayout.margin, l: 200 },
+        xaxis: { ...baseLayout.xaxis, title: { text: 'Average Threshold', font: { size: 12, color: '#5E6C84' } }, type: 'linear' },
+        yaxis: { ...baseLayout.yaxis, type: 'category', automargin: true, tickfont: { size: 10 } }
+    }, config);
+}
+
+function drawCurrentThresholds(year) {
+    const items = [];
+    D.metadata.fields.forEach(field => {
+        const fc = D.field_comparison[field];
+        const val = fc ? fc[String(year)] : undefined;
+        if (val !== undefined) items.push({ field: field, val: val });
+    });
+    if (items.length === 0) { Plotly.purge('chart6'); return; }
+    items.sort((a, b) => a.val - b.val);
+    
+    Plotly.newPlot('chart6', [{
+        y: items.map(i => i.field), x: items.map(i => i.val),
+        type: 'bar', orientation: 'h',
+        marker: { color: items.map((_, i) => chartColors[i % chartColors.length]), line: { width: 0 } }
+    }], {
+        ...baseLayout,
+        margin: { ...baseLayout.margin, l: 200 },
+        xaxis: { ...baseLayout.xaxis, title: { text: 'Threshold', font: { size: 12, color: '#5E6C84' } }, type: 'linear' },
+        yaxis: { ...baseLayout.yaxis, type: 'category', automargin: true, tickfont: { size: 10 } }
+    }, config);
+}
+
+function drawHeatmap() {
+    const hm = D.heatmap;
+    if (!hm || !hm.values) return;
+    Plotly.newPlot('chart7', [{
+        z: hm.values, x: hm.years, y: hm.fields,
+        type: 'heatmap',
+        colorscale: heatmapColorscale,
+        colorbar: { 
+            title: { text: 'Threshold', font: { size: 11, color: '#5E6C84' } }, 
+            thickness: 15, 
+            tickfont: { size: 10, color: '#5E6C84' },
+            outlinewidth: 0
+        }
+    }], {
+        ...baseLayout,
+        margin: { ...baseLayout.margin, l: 220, b: 60 },
+        xaxis: { ...baseLayout.xaxis, title: { text: 'Publication Year', font: { size: 12, color: '#5E6C84' } }, type: 'linear' },
+        yaxis: { ...baseLayout.yaxis, type: 'category', automargin: true, tickfont: { size: 9 } }
+    }, config);
+}
+
+function drawPredVsCurrent(field) {
+    const pred = D.predictions[field];
+    if (!pred) return;
+    const traces = [{ 
+        x: pred.years, y: pred.predicted, 
+        type: 'bar', name: 'Predicted (Jan 2026)', 
+        marker: { color: chartColors[2], line: { width: 0 } } 
+    }];
+    const fc = D.field_comparison[field];
+    if (fc) {
+        const yrs = Object.keys(fc).map(Number).sort((a, b) => a - b);
+        traces.push({ 
+            x: yrs, y: yrs.map(y => fc[String(y)]), 
+            type: 'scatter', mode: 'lines+markers', 
+            name: 'Current Actual', 
+            line: { color: chartColors[0], width: 2.5 }, 
+            marker: { size: 7, color: chartColors[0] } 
+        });
+    }
+    Plotly.newPlot('chart8', traces, {
+        ...baseLayout,
+        xaxis: { ...baseLayout.xaxis, title: { text: 'Publication Year', font: { size: 12, color: '#5E6C84' } }, type: 'linear' },
+        yaxis: { ...baseLayout.yaxis, title: { text: 'Threshold', font: { size: 12, color: '#5E6C84' } } },
+        showlegend: true, legend: { orientation: 'h', y: -0.18, font: { size: 11 } },
+        barmode: 'group'
+    }, config);
+}
+
+function drawAllFieldsForecast(year) {
+    const yearNum = parseInt(year);
+    const items = [];
+    Object.entries(D.predictions).forEach(([field, data]) => {
+        const idx = data.years.indexOf(yearNum);
+        if (idx !== -1) items.push({ field: field, val: data.predicted[idx] });
+    });
+    if (items.length === 0) { Plotly.purge('chart9'); return; }
+    items.sort((a, b) => a.val - b.val);
+    
+    Plotly.newPlot('chart9', [{
+        y: items.map(i => i.field), x: items.map(i => i.val),
+        type: 'bar', orientation: 'h',
+        marker: { color: items.map((_, i) => chartColors[i % chartColors.length]), line: { width: 0 } }
+    }], {
+        ...baseLayout,
+        margin: { ...baseLayout.margin, l: 200 },
+        xaxis: { ...baseLayout.xaxis, title: { text: 'Predicted Threshold', font: { size: 12, color: '#5E6C84' } }, type: 'linear' },
+        yaxis: { ...baseLayout.yaxis, type: 'category', automargin: true, tickfont: { size: 10 } }
+    }, config);
+}
+
+init();
+</script>
+</body>
+</html>

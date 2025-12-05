@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HCR Prediction Methodology</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #E2E8F0;
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+        h1 {
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 18px;
+            color: #94A3B8;
+            margin-bottom: 40px;
+        }
+        h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #F8FAFC;
+            margin: 48px 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #334155;
+        }
+        h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #CBD5E1;
+            margin: 28px 0 12px 0;
+        }
+        p { margin-bottom: 16px; color: #CBD5E1; }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(102,126,234,0.2) 0%, rgba(118,75,162,0.2) 100%);
+            border-left: 4px solid #667eea;
+            padding: 20px 24px;
+            border-radius: 0 12px 12px 0;
+            margin: 24px 0;
+        }
+        .highlight-box p { margin: 0; color: #E2E8F0; font-weight: 500; }
+        
+        .formula-box {
+            background: #0F172A;
+            border: 1px solid #334155;
+            padding: 20px 24px;
+            border-radius: 12px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 16px;
+            color: #A5B4FC;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #1E293B;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        th { background: #0F172A; font-weight: 600; color: #F8FAFC; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: rgba(102,126,234,0.1); }
+        
+        code {
+            background: #0F172A;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 14px;
+            color: #A5B4FC;
+        }
+        pre {
+            background: #0F172A;
+            border: 1px solid #334155;
+            padding: 20px 24px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #E2E8F0;
+        }
+        
+        .card {
+            background: #1E293B;
+            border-radius: 16px;
+            padding: 28px;
+            margin: 24px 0;
+            border: 1px solid #334155;
+        }
+        
+        .step {
+            display: flex;
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .step-number {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .step-content { flex: 1; padding-top: 6px; }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 24px 0;
+        }
+        .metric-card {
+            background: #0F172A;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+        .metric-value {
+            font-size: 36px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .metric-label {
+            font-size: 13px;
+            color: #94A3B8;
+            margin-top: 4px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-green { background: rgba(34,197,94,0.2); color: #4ADE80; }
+        .badge-yellow { background: rgba(234,179,8,0.2); color: #FACC15; }
+        .badge-red { background: rgba(239,68,68,0.2); color: #F87171; }
+        
+        .warning {
+            background: rgba(234,179,8,0.1);
+            border-left: 4px solid #FACC15;
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+        }
+        .warning p { color: #FDE047; margin: 0; }
+        
+        ul, ol { margin: 16px 0; padding-left: 24px; }
+        li { margin: 8px 0; color: #CBD5E1; }
+        
+        .flow-chart {
+            background: #0F172A;
+            border: 1px solid #334155;
+            padding: 24px;
+            border-radius: 12px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            overflow-x: auto;
+            white-space: pre;
+            color: #A5B4FC;
+        }
+        
+        .summary-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 28px;
+            border-radius: 16px;
+            margin: 32px 0;
+        }
+        .summary-box p { color: white; font-size: 18px; margin: 0; line-height: 1.6; }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            color: #64748B;
+            font-size: 14px;
+            border-top: 1px solid #334155;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 HCR Prediction Model</h1>
+        <p class="subtitle">Highly Cited Researcher Classification Methodology</p>
+
+        <h2>🎯 Problem Overview</h2>
+        <p>Predict whether a researcher should be classified as a <strong>Highly Cited Researcher (HCR)</strong> based on their papers' citation patterns and the threshold dynamics.</p>
+        
+        <div class="card">
+            <h3>Available Data</h3>
+            <table>
+                <tr><th>Data Type</th><th>Time Range</th><th>Frequency</th><th>Content</th></tr>
+                <tr><td>Threshold Data</td><td>2017 Oct - 2025 Nov</td><td>Bimonthly (49 releases)</td><td>Citation thresholds for 22 fields × 11 years</td></tr>
+                <tr><td>HCR Paper Lists</td><td>2017 Oct - 2025 Nov</td><td>Bimonthly</td><td>Papers, authors, citation counts</td></tr>
+                <tr><td>Sample Data</td><td>July 2024</td><td>Single snapshot</td><td>Geosciences field (6,268 papers)</td></tr>
+            </table>
+        </div>
+
+        <h2>⏰ Key Challenge: Time Effect</h2>
+        <div class="highlight-box">
+            <p>Older papers have higher thresholds (more time to accumulate citations). A 2014 paper needs ~228 citations; a 2024 paper needs only ~3 citations.</p>
+        </div>
+        
+        <h3>Solution: Normalized Citation Score (NCS)</h3>
+        <div class="formula-box">NCS = Actual Citations / Threshold</div>
+        
+        <table>
+            <tr><th>Interpretation</th><th>NCS Value</th></tr>
+            <tr><td><span class="badge badge-green">Highly Cited Paper</span></td><td>NCS ≥ 1.0</td></tr>
+            <tr><td><span class="badge badge-yellow">Near-Threshold (Potential HCP)</span></td><td>0.8 ≤ NCS < 1.0</td></tr>
+            <tr><td>Above Average</td><td>0.5 ≤ NCS < 0.8</td></tr>
+            <tr><td>Below Average</td><td>NCS < 0.5</td></tr>
+        </table>
+
+        <h2>📊 The Gap Concept (x Parameter)</h2>
+        <p>Papers close to the threshold have <strong>potential</strong> to become highly cited as citations accumulate over time.</p>
+        
+        <div class="formula-box">
+            Gap = Threshold - Actual Citations<br>
+            Relative Gap = Gap / Threshold
+        </div>
+        
+        <table>
+            <tr><th>Category</th><th>Condition</th><th>Interpretation</th></tr>
+            <tr><td><span class="badge badge-green">Already HCP</span></td><td>Gap ≤ 0</td><td>Paper is already highly cited</td></tr>
+            <tr><td><span class="badge badge-yellow">High Potential</span></td><td>0 < Relative Gap ≤ 0.1</td><td>Within 10% of threshold</td></tr>
+            <tr><td>Medium Potential</td><td>0.1 < Relative Gap ≤ 0.2</td><td>Within 20% of threshold</td></tr>
+            <tr><td>Low Potential</td><td>0.2 < Relative Gap ≤ 0.3</td><td>Within 30% of threshold</td></tr>
+            <tr><td><span class="badge badge-red">Unlikely</span></td><td>Relative Gap > 0.3</td><td>Probably won't reach threshold</td></tr>
+        </table>
+
+        <h2>🔧 Feature Engineering</h2>
+        
+        <div class="card">
+            <h3>Paper-Level Features</h3>
+            <pre>publication_year        # Year paper was published
+current_citations       # Citation count at snapshot time
+paper_age_months        # Age of paper in months
+threshold               # Required citations for HCP status
+ncs                     # Normalized Citation Score
+gap                     # Citations below threshold
+relative_gap            # Gap as percentage of threshold
+is_hcp                  # Binary: 1 if already HCP
+hcp_probability         # Probability of becoming HCP</pre>
+        </div>
+        
+        <div class="card">
+            <h3>Researcher-Level Features (Aggregated)</h3>
+            <pre>hcp_count               # Number of highly cited papers
+potential_hcp_count     # Papers within gap threshold
+expected_hcp_count      # Predicted future HCP count
+total_citations         # Sum of all citations
+avg_ncs                 # Average normalized citation score
+max_ncs                 # Highest NCS among papers
+hcp_rate                # hcp_count / total_papers
+citation_concentration  # % of citations from top papers</pre>
+        </div>
+
+        <h2>🏗️ Model Architecture</h2>
+        
+        <div class="card">
+            <h3>Stage 1: Paper HCP Probability Model</h3>
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">Calculate citation velocity (citations per month)</div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">Project future citations based on remaining time in 10-year window</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">Convert projected NCS to probability using sigmoid function</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>Stage 2: Researcher HCR Classification</h3>
+            <p>Ensemble of three models:</p>
+            <ul>
+                <li><strong>Gradient Boosting Classifier</strong> - Captures non-linear relationships</li>
+                <li><strong>Random Forest Classifier</strong> - Robust to outliers</li>
+                <li><strong>Logistic Regression</strong> - Provides interpretability</li>
+            </ul>
+            <p>Final prediction: Majority vote from all three models</p>
+        </div>
+
+        <h2>✅ Model Results (Geosciences, July 2024)</h2>
+        
+        <div class="metric-grid">
+            <div class="metric-card">
+                <div class="metric-value">30,164</div>
+                <div class="metric-label">Total Researchers</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">5,008</div>
+                <div class="metric-label">HCR Candidates (≥3 HCPs)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">100%</div>
+                <div class="metric-label">Model AUC Score</div>
+            </div>
+        </div>
+        
+        <h3>Top Feature Importance</h3>
+        <table>
+            <tr><th>Rank</th><th>Feature</th><th>Importance</th></tr>
+            <tr><td>1</td><td>hcp_count</td><td>40.6%</td></tr>
+            <tr><td>2</td><td>expected_hcp_count</td><td>32.4%</td></tr>
+            <tr><td>3</td><td>total_papers</td><td>27.0%</td></tr>
+        </table>
+
+        <h2>📈 Pipeline Flow</h2>
+        <div class="flow-chart">┌─────────────────────────────────────────────────────────┐
+│                    RAW DATA                              │
+│         HCP Lists + Threshold Data                       │
+└─────────────────────┬───────────────────────────────────┘
+                      ↓
+┌─────────────────────────────────────────────────────────┐
+│               PAPER FEATURES                             │
+│  • Calculate NCS (time-normalized)                       │
+│  • Compute gap to threshold                              │
+│  • Estimate HCP probability                              │
+└─────────────────────┬───────────────────────────────────┘
+                      ↓
+┌─────────────────────────────────────────────────────────┐
+│           RESEARCHER AGGREGATION                         │
+│  • Count HCPs per researcher                             │
+│  • Calculate citation metrics                            │
+│  • Compute expected future HCPs                          │
+└─────────────────────┬───────────────────────────────────┘
+                      ↓
+┌─────────────────────────────────────────────────────────┐
+│           ENSEMBLE CLASSIFICATION                        │
+│  • Gradient Boosting + Random Forest + Logistic Reg     │
+│  • Majority vote prediction                              │
+│  • Probability score output                              │
+└─────────────────────┬───────────────────────────────────┘
+                      ↓
+┌─────────────────────────────────────────────────────────┐
+│              HCR PREDICTIONS                             │
+│  • Binary classification (HCR / Not HCR)                │
+│  • Probability ranking for candidates                    │
+└─────────────────────────────────────────────────────────┘</div>
+
+        <h2>⚠️ Important Notes</h2>
+        
+        <div class="warning">
+            <p><strong>Data Limitation:</strong> The HCP data only contains papers that are ALREADY highly cited. To fully utilize the "gap analysis" concept, we would need data on ALL papers (including those below threshold).</p>
+        </div>
+        
+        <h3>What the Gap Analysis Could Do (with complete data):</h3>
+        <ul>
+            <li>Identify papers that are close to becoming highly cited</li>
+            <li>Predict future HCPs based on citation velocity</li>
+            <li>Identify "rising star" researchers with many potential HCPs</li>
+        </ul>
+        
+        <div class="summary-box">
+            <p><strong>Key Insight:</strong> The most important predictor of HCR status is simply the number of confirmed Highly Cited Papers (HCPs). Researchers with ≥3 HCPs in a field are strong HCR candidates.</p>
+        </div>
+
+        <h2>📁 Files Reference</h2>
+        <table>
+            <tr><th>File</th><th>Description</th></tr>
+            <tr><td><code>HCR_Prediction_Model.py</code></td><td>Main model implementation</td></tr>
+            <tr><td><code>HCR_Prediction_Methodology.md</code></td><td>Detailed methodology document</td></tr>
+            <tr><td><code>HCR_Predictions_Geosciences.xlsx</code></td><td>Output predictions</td></tr>
+            <tr><td><code>HCR_Analysis_Plots.png</code></td><td>Visualization plots</td></tr>
+        </table>
+
+        <div class="footer">
+            <p>HCR Prediction Model | ESI Analysis Project | December 2024</p>
+        </div>
+    </div>
+</body>
+</html>
+

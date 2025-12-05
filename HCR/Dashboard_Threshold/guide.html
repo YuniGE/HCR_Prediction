@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Guide</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 900px; margin: 0 auto; padding: 40px 20px; line-height: 1.7; color: #333; }
+        h1 { color: #0071e3; border-bottom: 2px solid #0071e3; padding-bottom: 10px; }
+        h2 { color: #1d1d1f; margin-top: 40px; }
+        h3 { color: #333; }
+        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #f5f5f7; }
+        code { background: #f5f5f7; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+        pre { background: #f5f5f7; padding: 16px; border-radius: 8px; overflow-x: auto; }
+        blockquote { border-left: 4px solid #0071e3; padding-left: 16px; color: #666; margin: 20px 0; }
+        hr { border: none; border-top: 1px solid #ddd; margin: 30px 0; }
+        a { color: #0071e3; }
+    </style>
+</head>
+<body>
+<h1>ESI Threshold Dashboard 使用指南</h1>
+<h2>📌 关键概念解释</h2>
+<h3>两种"年份"的区别（非常重要！）</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>英文</th>
+<th>范围</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>发布日期</strong></td>
+<td>Released Date</td>
+<td>2017-2025</td>
+<td>ESI 发布阈值数据的日期（约每2个月更新一次）</td>
+</tr>
+<tr>
+<td><strong>出版年份</strong></td>
+<td>Publication Year</td>
+<td>2007-2025</td>
+<td>论文原始发表的年份</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键理解：</strong>
+- 你的数据包含 <strong>49 次 ESI 发布</strong>（从 2017年10月 到 2025年11月）
+- 每次发布包含约 <strong>10-11 个出版年份</strong> 的阈值
+- 例如：2024年11月的发布 包含 2015-2025 年出版的论文的阈值</p>
+<h3>为什么 Multi-Year Comparison 显示 2016-2024？</h3>
+<p>这显示的是 <strong>出版年份（Publication Year）</strong>，不是发布日期：
+- 2016年出版的论文 → 在你的数据期间（2017-2025发布）一直被跟踪
+- 2024年出版的论文 → 只有最近几次发布才有数据</p>
+<p><strong>图表展示的是：</strong> 追踪某一年出版的论文，随着时间推移，其阈值如何增长。</p>
+<hr />
+<h2>📊 各图表详细解释</h2>
+<h3>1. Time Series Analysis（时间序列分析）</h3>
+<p><strong>显示内容：</strong> 选定出版年份的论文，其阈值随 ESI 发布时间的变化</p>
+<p><strong>横轴：</strong> ESI 发布日期（Release Date）<br />
+<strong>纵轴：</strong> 阈值（Threshold）</p>
+<p><strong>解读示例：</strong>
+- 选择 Publication Year = 2020
+- 图表显示 2020年出版的论文，从第一次被 ESI 收录到最新发布，阈值如何从 3 增长到 168
+- 曲线上升说明：随着时间推移，2020年的论文积累了更多引用</p>
+<p><strong>实际意义：</strong> 如果你2020年发表的论文有100次引用，查看这条曲线可以知道在哪个时间点你的论文超过了阈值。</p>
+<hr />
+<h3>2. Multi-Year Comparison（多年对比）</h3>
+<p><strong>显示内容：</strong> 比较不同出版年份（2016, 2018, 2020, 2022）的阈值演变</p>
+<p><strong>为什么选这些年份：</strong>
+- 展示不同"年龄"论文的阈值差异
+- 2016年出版的论文比2022年出版的论文"老"6年
+- 老论文有更多时间积累引用 → 阈值更高</p>
+<p><strong>关键洞察：</strong>
+- 所有曲线都在上升（随时间积累引用）
+- 老的出版年份（2016）曲线在上方
+- 新的出版年份（2022）曲线在下方</p>
+<hr />
+<h3>3. Age-Threshold Relationship（年龄-阈值关系）</h3>
+<p><strong>显示内容：</strong> 论文年龄与阈值的平均关系</p>
+<p><strong>论文年龄计算：</strong> <code>Paper Age = Release Year - Publication Year</code></p>
+<p><strong>示例：</strong>
+- 2020年出版的论文，在2024年ESI发布时，年龄 = 2024 - 2020 = 4年
+- 2015年出版的论文，在2024年ESI发布时，年龄 = 2024 - 2015 = 9年</p>
+<p><strong>关键发现：</strong> 阈值遵循 <strong>幂增长模式</strong>：</p>
+<pre><code>Threshold ≈ a × Age^b + c
+</code></pre>
+<ul>
+<li>年龄越大，阈值越高，但增长速度逐渐放缓</li>
+</ul>
+<hr />
+<h3>4. Growth Patterns by Field（领域增长模式）</h3>
+<p><strong>显示内容：</strong> 不同研究领域的阈值增长曲线</p>
+<p><strong>关键差异：</strong>
+- <strong>Clinical Medicine</strong>: 高引用领域，曲线陡峭
+- <strong>Mathematics</strong>: 低引用领域，曲线平缓</p>
+<p><strong>实际意义：</strong> 不同领域"高被引"的标准差异巨大
+- 在临床医学中需要200+引用才是高被引
+- 在数学中可能50次引用就是高被引</p>
+<hr />
+<h3>5. Average Threshold by Field（领域平均阈值）</h3>
+<p><strong>显示内容：</strong> 各领域的整体平均阈值</p>
+<p><strong>排序：</strong> 从低到高</p>
+<p><strong>高引用领域（阈值高）：</strong>
+- Molecular Biology &amp; Genetics
+- Clinical Medicine
+- Multidisciplinary</p>
+<p><strong>低引用领域（阈值低）：</strong>
+- Mathematics
+- Computer Science
+- Economics &amp; Business</p>
+<hr />
+<h3>6. Current Thresholds（当前阈值）</h3>
+<p><strong>显示内容：</strong> 最新一期 ESI 发布中，选定出版年份在各领域的阈值</p>
+<p><strong>使用场景：</strong> 
+- 想知道你2020年发表在化学领域的论文现在需要多少引用才是高被引？
+- 选择 Publication Year = 2020，查看 Chemistry 的条形高度</p>
+<hr />
+<h3>7. Threshold Heatmap（阈值热力图）</h3>
+<p><strong>显示内容：</strong> 完整的 领域 × 出版年份 矩阵</p>
+<p><strong>颜色：</strong> 
+- 浅色 = 低阈值
+- 深蓝色 = 高阈值</p>
+<p><strong>模式解读：</strong>
+- 左边列（老出版年份）颜色深 → 老论文阈值高
+- 右边列（新出版年份）颜色浅 → 新论文阈值低
+- 上方行（高引用领域）颜色深
+- 下方行（低引用领域）颜色浅</p>
+<hr />
+<h3>8. Predicted vs Current（预测 vs 当前）</h3>
+<p><strong>显示内容：</strong> 
+- 柱状图：2026年1月预测阈值
+- 折线图：最新实际阈值</p>
+<p><strong>预测模型：</strong> Gradient Boosting，准确率约98%</p>
+<p><strong>使用场景：</strong> 预估你的论文在未来是否能达到高被引标准</p>
+<hr />
+<h3>9. All Fields Forecast（全领域预测）</h3>
+<p><strong>显示内容：</strong> 选定出版年份，所有领域的2026年1月预测阈值</p>
+<p><strong>排序：</strong> 从高到低</p>
+<hr />
+<h2>🔑 实用查询示例</h2>
+<h3>Q1: 我2021年发表的临床医学论文，有150次引用，现在是高被引吗？</h3>
+<ol>
+<li>选择 Field = CLINICAL MEDICINE</li>
+<li>选择 Publication Year = 2021</li>
+<li>查看 "Current Thresholds" 或 "Time Series"</li>
+<li>如果阈值显示 &lt; 150，恭喜！你是高被引</li>
+</ol>
+<h3>Q2: 未来我的论文还能保持高被引吗？</h3>
+<ol>
+<li>查看 "Predicted vs Current"</li>
+<li>如果预测阈值 &gt; 你的引用数，你可能会被淘汰</li>
+<li>继续积累引用！</li>
+</ol>
+<h3>Q3: 哪个领域最容易成为高被引？</h3>
+<ol>
+<li>查看 "Average Threshold by Field"</li>
+<li>阈值最低的领域（如 Mathematics）相对容易</li>
+<li>但这也意味着该领域论文整体引用较少</li>
+</ol>
+<hr />
+<h2>📁 文件说明</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>threshold_dashboard.html</code></td>
+<td>Dashboard 网页文件</td>
+</tr>
+<tr>
+<td><code>dashboard_data.json</code></td>
+<td>数据文件（必须与 HTML 同目录）</td>
+</tr>
+<tr>
+<td><code>README_Dashboard_Guide.md</code></td>
+<td>本说明文档</td>
+</tr>
+</tbody>
+</table>
+<h2>🚀 如何打开 Dashboard</h2>
+<p>由于浏览器安全限制，不能直接双击打开 HTML。需要启动本地服务器：</p>
+<pre><code class="language-bash">cd &quot;Dashboard_Threshold文件夹路径&quot;
+python -m http.server 8080
+</code></pre>
+<p>然后浏览器访问：<code>http://localhost:8080/threshold_dashboard.html</code></p>
+<hr />
+<h2>📈 数据摘要</h2>
+<ul>
+<li><strong>ESI 发布次数：</strong> 49 次（2017-10 到 2025-11）</li>
+<li><strong>研究领域：</strong> 22 个</li>
+<li><strong>出版年份范围：</strong> 2007-2025（随发布日期滚动）</li>
+<li><strong>预测模型：</strong> Gradient Boosting (R² ≈ 98%)</li>
+</ul>
+</body>
+</html>
