@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HCR Interactive Analysis Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --accent-blue: #0071e3;
+            --accent-green: #22c55e;
+            --accent-orange: #f59e0b;
+            --section-spacing: 120px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-title {
+            font-size: 80px;
+            line-height: 1.05;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #1d1d1f 0%, #434344 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .section-title {
+            font-size: 56px;
+            margin-bottom: 24px;
+            line-height: 1.1;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 32px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            max-width: 800px;
+            margin-bottom: 40px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .text-large {
+            font-size: 24px;
+            line-height: 1.4;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .text-body {
+            font-size: 19px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .text-left {
+            text-align: left;
+            margin-left: 0;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        section {
+            padding: var(--section-spacing) 0;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-top: 60px;
+        }
+
+        .hero-eyebrow {
+            color: var(--accent-blue);
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Feature Layouts */
+        .feature-stacked {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 100px;
+        }
+
+        .feature-stacked .feature-text {
+            max-width: 900px;
+            margin-bottom: 40px;
+        }
+
+        .feature-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            margin-bottom: 100px;
+        }
+
+        .feature-split.reversed {
+            direction: rtl;
+        }
+        
+        .feature-split.reversed .feature-text {
+            direction: ltr;
+        }
+
+        /* Visual Containers */
+        .feature-visual {
+            width: 100%;
+            background: #f5f5f7;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-visual img, .feature-visual video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .feature-visual:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+        }
+
+        /* Threshold Logic Cards */
+        .logic-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin: 60px 0;
+            text-align: left;
+        }
+
+        .logic-card {
+            background: #f5f5f7;
+            padding: 40px;
+            border-radius: 24px;
+        }
+
+        .logic-card h4 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 17px;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        /* Footer */
+        footer {
+            background: #f5f5f7;
+            padding: 80px 0;
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--accent-blue);
+            color: white;
+            padding: 16px 36px;
+            border-radius: 980px;
+            text-decoration: none;
+            font-size: 19px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #005bb5;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero-title { font-size: 56px; }
+            .feature-split, .feature-split.reversed { grid-template-columns: 1fr; gap: 40px; direction: ltr; }
+            .feature-split.reversed .feature-text { direction: ltr; }
+            .logic-grid { grid-template-columns: 1fr; }
+            .container { padding: 0 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Slide 1: Introduction -->
+    <section class="hero visible">
+        <div class="container">
+            <div class="hero-eyebrow">Research Intelligence</div>
+            <h1 class="hero-title">Highly Cited Researchers</h1>
+            <p class="section-subtitle">Interactive Analysis Dashboard</p>
+            <a href="#data-scope" class="btn">Start Presentation</a>
+        </div>
+    </section>
+
+    <!-- Slide 2: Data Scope -->
+    <section id="data-scope">
+        <div class="container">
+            <div class="feature-stacked">
+                <div class="feature-text">
+                    <h2 class="section-title">Data Scope</h2>
+                    <p class="text-large">Built on authoritative data sources.</p>
+                    <p class="text-body">
+                        <strong>Source:</strong> Web of Science (WOS) & Essential Science Indicators (ESI)<br>
+                        <strong>Cycle:</strong> Awarded in November based on data snapshot in March.<br>
+                        <strong>Key Metrics:</strong> Highly Cited Papers (HCP) count and total citation numbers.
+                    </p>
+                </div>
+                <div class="feature-visual large">
+                    <img src="Demo Photos/0.HCR-WOS cover.png" alt="Data Scope Cover">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 3: Scatter Analysis -->
+    <section>
+        <div class="container">
+            <!-- Part 1: The Big Picture -->
+            <div class="feature-stacked" style="margin-bottom: 60px;">
+                <div class="feature-text">
+                    <h2 class="section-title">Scatter Analysis</h2>
+                    <p class="text-large">Global View vs. Awarded View</p>
+                    <p class="text-body">
+                        The <strong>Left Scatter</strong> tracks performance across all 21 disciplines — for multidisciplinary analysis.<br>
+                        The <strong>Right Scatter</strong> isolates impact within the specific HCR-awarded field.
+                    </p>
+                </div>
+                <div class="feature-visual large">
+                    <img src="Demo Photos/1. Overview.png" alt="Scatter Overview">
+                </div>
+            </div>
+
+            <!-- Part 2: Interaction (Split View) -->
+            <div class="feature-split">
+                <div class="feature-text text-left">
+                    <h3>Interactive Discovery</h3>
+                    <p class="text-body text-left">
+                        <strong>X-Axis:</strong> Highly Cited Papers (HCP)<br>
+                        <strong>Y-Axis:</strong> Total Citations
+                    </p>
+                    <p class="text-body text-left">
+                        Hover over any data point to instantly reveal the researcher's identity, affiliation, and precise metrics.
+                    </p>
+                </div>
+                <div class="feature-visual">
+                    <!-- 
+                        To use a video instead of an image, replace the <img> tag below with:
+                        
+                    -->
+    
+                    <video autoplay loop muted playsinline width="100%">
+                            <source src="Demo Photos/2. Check researcher position.mp4" type="video/mp4">
+                    </video> 
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 4: Global Positioning -->
+    <section>
+        <div class="container">
+            <div class="feature-stacked">
+                <div class="feature-text">
+                    <h2 class="section-title">Global Positioning & HKU Context</h2>
+                    <p class="text-large">Benchmarking performance.</p>
+                    <p class="text-body">
+                        Apply filters for Country/Region, Affiliation, and Field. The headline overview at the top instantly updates HCR, HCP, and citation counts. Click "More Filters" to compare directly between institutions.
+                    </p>
+                </div>
+                <div class="feature-visual large">
+                    <img src="Demo Photos/3. Check HKU position.png" alt="HKU Position">
+                </div>
+                <div class="feature-visual large" style="margin-top: 40px;">
+                    <img src="Demo Photos/4. HKU VS other U.png" alt="HKU vs Peers">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 5: Researcher Lookup -->
+    <section>
+        <div class="container">
+            <div class="feature-stacked">
+                <div class="feature-text">
+                    <h2 class="section-title">Researcher Lookup</h2>
+                    <p class="text-large">Instant identification and context.</p>
+                    <p class="text-body">
+                        Use the search box to locate a specific HKU researcher. The <strong>Highlight</strong> function marks their position in both plots (All Fields vs Awarded Field). Quickly interpret if they are above/below the trendline and identify their peer neighborhood.
+                    </p>
+                </div>
+                <div class="feature-visual large">
+                    <img src="Demo Photos/5. Highlight researcher.png" alt="Highlight Researcher">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 6: Paper Drill-Down -->
+    <section>
+        <div class="container">
+            <h2 class="section-title" style="text-align: center; margin-bottom: 60px;">Paper Drill-Down & Thresholds</h2>
+
+            <!-- Overview & History -->
+            <div class="feature-split">
+                <div class="feature-text text-left">
+                    <h3>Award History</h3>
+                    <p class="text-body text-left">Access full award history to understand the researcher's trajectory over the years.</p>
+                </div>
+                <div class="feature-visual">
+                    <img src="Demo Photos/7. HCR awarded histroy.png" alt="Award History">
+                </div>
+            </div>
+            
+            <div class="feature-stacked" style="margin-bottom: 80px;">
+                 <div class="feature-text">
+                    <h3>Comprehensive Detail</h3>
+                    <p class="text-body">Check publication details and HCP possibilities at a glance.</p>
+                 </div>
+                 <div class="feature-visual large">
+                    <img src="Demo Photos/6. Prediction-Current HCP.png" alt="Prediction Detail">
+                </div>
+            </div>
+
+            <!-- Threshold Logic Table -->
+            <div class="logic-grid">
+                <div class="logic-card">
+                    <h4>1. Conservative Threshold</h4>
+                    <p class="text-body text-left" style="font-size: 16px; margin-bottom: 20px;">
+                        <strong>Target:</strong> Current HCPs<br>
+                        <strong>Formula:</strong> Standard (Predicted) × 1.07<br>
+                        <strong>Goal:</strong> Defense & Monitoring
+                    </p>
+                    <div class="status-item">
+                        <div class="status-dot" style="background: #0071e3;"></div>
+                        <span><strong>Exceptional:</strong> >200% of threshold.</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-dot" style="background: #22c55e;"></div>
+                        <span><strong>Solid:</strong> Safely above conservative line (~90% confidence).</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-dot" style="background: #f59e0b;"></div>
+                        <span><strong>Marginal:</strong> Close to the line. Risk zone.</span>
+                    </div>
+                </div>
+
+                <div class="logic-card">
+                    <h4>2. Standard Threshold</h4>
+                    <p class="text-body text-left" style="font-size: 16px; margin-bottom: 20px;">
+                        <strong>Target:</strong> Non-Current HCPs<br>
+                        <strong>Formula:</strong> Model-predicted minimum<br>
+                        <strong>Goal:</strong> Offense & Growth
+                    </p>
+                    <div class="status-item">
+                        <div class="status-dot" style="background: #86868b;"></div>
+                        <span><strong>High Potential:</strong> Very close to becoming HCP.</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-dot" style="background: #86868b; opacity: 0.7;"></div>
+                        <span><strong>Mid Potential:</strong> Within striking distance.</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-dot" style="background: #86868b; opacity: 0.4;"></div>
+                        <span><strong>Low Potential:</strong> Long-term tracking.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marginal / Danger List -->
+            <div class="feature-stacked">
+                <div class="feature-text">
+                    <h3>Risk Monitoring (Marginal)</h3>
+                    <p class="text-body">The "Danger List" of current HCPs near the conservative cutoff. Provides early warning for leadership intervention.</p>
+                </div>
+                <div class="feature-visual large">
+                    <img src="Demo Photos/8. Marginal Prediction-Current HCP.png" alt="Marginal Risk">
+                </div>
+            </div>
+
+            <!-- Potential List -->
+            <div class="feature-stacked">
+                <div class="feature-text">
+                    <h3>Opportunity Identification (Potential)</h3>
+                    <p class="text-body">Identify non-current HCPs that are crossing the Standard Threshold. Prioritized by Low/Mid/High potential.</p>
+                </div>
+                <div class="feature-visual large">
+                    <img src="Demo Photos/9. Prediction-Non Current HCP.png" alt="Potential Opportunity">
+                </div>
+            </div>
+
+            <!-- Export -->
+            <div class="feature-split reversed">
+                <div class="feature-text text-left">
+                    <h3>Actionable Exports</h3>
+                    <p class="text-body text-left">Export the Marginal list for defense and the High Potential list for internal follow-up.</p>
+                </div>
+                <div class="feature-visual">
+                    <img src="Demo Photos/10. Export.png" alt="Export Function">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 7: Strategic Dashboards -->
+    <section style="background-color: #f5f5f7;">
+        <div class="container">
+            <h2 class="section-title" style="text-align: center; margin-bottom: 80px;">Strategic Dashboards</h2>
+            
+            <!-- Top Rankings -->
+            <div class="feature-stacked">
+                <div class="feature-text">
+                    <h3>Top Rankings</h3>
+                    <p class="text-body"> This view ranks researchers by total HCP count and total citations, allowing us to recognize our most prolific and impactful contributors at a glance.</p>
+                </div>
+                <div class="feature-visual large">
+                    <img src="Demo Photos/11. Visualization-Top Ranking.png" alt="Top Rankings">
+                </div>
+            </div>
+
+            <!-- Distributions -->
+            <div class="feature-stacked">
+                <div class="feature-text">
+                    <h3>Distributions</h3>
+                    <p class="text-body">Understand our structural strengths. This dashboard breaks down HCRs by field and cross-disciplinary breadth, revealing whether our impact is concentrated in specific niches or spread across the university.</p>
+                </div>
+                <div class="feature-visual large">
+                    <img src="Demo Photos/12. Visualization-Distribution.png" alt="Distributions">
+                </div>
+            </div>
+
+            <!-- Efficiency -->
+            <div class="feature-stacked">
+                <div class="feature-text">
+                    <h3>Citation Efficiency</h3>
+                    <p class="text-body">Quality over quantity. By plotting HCP count against Average Citations per Paper, we identify researchers who drive outsized impact with fewer publications—our most efficient performers.</p>
+                </div>
+                <div class="feature-visual large">
+                    <img src="Demo Photos/13. Visualization-Citation Efficiency.png" alt="Efficiency Analysis">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 9: Personal Prediction -->
+    <section>
+        <div class="container">
+            <div class="feature-stacked">
+                <div class="feature-text">
+                    <h2 class="section-title">Personal Prediction</h2>
+                    <p class="text-large">Proactive Self-Management</p>
+                    <p class="text-body">Upload your latest citation data to run against our prediction models privately. Get a forward-looking view of your performance before official data releases.</p>
+                </div>
+                <div class="feature-visual" style="background: #000; padding: 120px 0; border-radius: 32px;">
+                    <div style="color: white; text-align: center;">
+                        <div style="font-size: 80px; margin-bottom: 24px;"></div>
+                        <div style="font-size: 32px; font-weight: 500;">Coming Soon</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">HCR Interactive Analysis Dashboard</p>
+            <p style="font-size: 14px; color: #86868b;">&copy; 2026 University of Hong Kong. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
