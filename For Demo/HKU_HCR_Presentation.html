@@ -28,6 +28,32 @@
             color: var(--text-primary);
             line-height: 1.5;
             overflow-x: hidden;
+            padding-top: 44px; /* Added for fixed nav */
+        }
+
+        /* Navigation Bar */
+        .nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            position: fixed; /* Fixed to stay at top */
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .nav-content {
+            max-width: 1400px; /* Matched to container */
+            margin: 0 auto;
+            padding: 0 40px; /* Matched to container padding */
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 500;
         }
 
         /* Typography */
@@ -250,6 +276,12 @@
     </style>
 </head>
 <body>
+    <div class="nav">
+        <div class="nav-content">
+            <span style="font-weight: 600;">🎓 HKU Research Intelligence</span>
+            <span>Interactive Analysis Dashboard</span>
+        </div>
+    </div>
 
     <!-- Slide 1: Introduction -->
     <section class="hero visible">
